@@ -71,62 +71,62 @@ typedef struct rd_kafka_replyq_s {
                                         *        (KIP-482) */
 
 typedef enum {
-        RD_KAFKA_OP_NONE,     /* No specific type, use OP_CB */
-	RD_KAFKA_OP_FETCH,    /* Kafka thread -> Application */
-	RD_KAFKA_OP_ERR,      /* Kafka thread -> Application */
+        RD_KAFKA_OP_NONE,         /* No specific type, use OP_CB */
+        RD_KAFKA_OP_FETCH,        /* Kafka thread -> Application */
+        RD_KAFKA_OP_ERR,          /* Kafka thread -> Application */
         RD_KAFKA_OP_CONSUMER_ERR, /* Kafka thread -> Application */
-	RD_KAFKA_OP_DR,       /* Kafka thread -> Application
-			       * Produce message delivery report */
-	RD_KAFKA_OP_STATS,    /* Kafka thread -> Application */
+        RD_KAFKA_OP_DR,           /* Kafka thread -> Application
+                                   * Produce message delivery report */
+        RD_KAFKA_OP_STATS,        /* Kafka thread -> Application */
 
         RD_KAFKA_OP_OFFSET_COMMIT, /* any -> toppar's Broker thread */
         RD_KAFKA_OP_NODE_UPDATE,   /* any -> Broker thread: node update */
 
-        RD_KAFKA_OP_XMIT_BUF, /* transmit buffer: any -> broker thread */
-        RD_KAFKA_OP_RECV_BUF, /* received response buffer: broker thr -> any */
-        RD_KAFKA_OP_XMIT_RETRY, /* retry buffer xmit: any -> broker thread */
-        RD_KAFKA_OP_FETCH_START, /* Application -> toppar's handler thread */
-        RD_KAFKA_OP_FETCH_STOP,  /* Application -> toppar's handler thread */
-        RD_KAFKA_OP_SEEK,        /* Application -> toppar's handler thread */
-	RD_KAFKA_OP_PAUSE,       /* Application -> toppar's handler thread */
+        RD_KAFKA_OP_XMIT_BUF,     /* transmit buffer: any -> broker thread */
+        RD_KAFKA_OP_RECV_BUF,     /* received response buffer: broker thr -> any */
+        RD_KAFKA_OP_XMIT_RETRY,   /* retry buffer xmit: any -> broker thread */
+        RD_KAFKA_OP_FETCH_START,  /* Application -> toppar's handler thread */
+        RD_KAFKA_OP_FETCH_STOP,   /* Application -> toppar's handler thread */
+        RD_KAFKA_OP_SEEK,         /* Application -> toppar's handler thread */
+        RD_KAFKA_OP_PAUSE,        /* Application -> toppar's handler thread */
         RD_KAFKA_OP_OFFSET_FETCH, /* Broker -> broker thread: fetch offsets
                                    * for topic. */
 
-        RD_KAFKA_OP_PARTITION_JOIN,  /* * -> cgrp op:   add toppar to cgrp
-                                      * * -> broker op: add toppar to broker */
-        RD_KAFKA_OP_PARTITION_LEAVE, /* * -> cgrp op:   remove toppar from cgrp
-                                      * * -> broker op: remove toppar from rkb*/
-        RD_KAFKA_OP_REBALANCE,       /* broker thread -> app:
-                                      * group rebalance */
-        RD_KAFKA_OP_TERMINATE,       /* For generic use */
-        RD_KAFKA_OP_COORD_QUERY,     /* Query for coordinator */
-        RD_KAFKA_OP_SUBSCRIBE,       /* New subscription */
-        RD_KAFKA_OP_ASSIGN,          /* New assignment */
-        RD_KAFKA_OP_GET_SUBSCRIPTION,/* Get current subscription.
-				      * Reuses u.subscribe */
-        RD_KAFKA_OP_GET_ASSIGNMENT,  /* Get current assignment.
-				      * Reuses u.assign */
-	RD_KAFKA_OP_THROTTLE,        /* Throttle info */
-	RD_KAFKA_OP_NAME,            /* Request name */
-        RD_KAFKA_OP_CG_METADATA,     /**< Request consumer metadata */
-	RD_KAFKA_OP_OFFSET_RESET,    /* Offset reset */
-        RD_KAFKA_OP_METADATA,        /* Metadata response */
-        RD_KAFKA_OP_LOG,             /* Log */
-        RD_KAFKA_OP_WAKEUP,          /* Wake-up signaling */
-        RD_KAFKA_OP_CREATETOPICS,    /**< Admin: CreateTopics: u.admin_request*/
-        RD_KAFKA_OP_DELETETOPICS,    /**< Admin: DeleteTopics: u.admin_request*/
-        RD_KAFKA_OP_CREATEPARTITIONS,/**< Admin: CreatePartitions:
-                                      *   u.admin_request*/
-        RD_KAFKA_OP_ALTERCONFIGS,    /**< Admin: AlterConfigs: u.admin_request*/
-        RD_KAFKA_OP_DESCRIBECONFIGS, /**< Admin: DescribeConfigs:
-                                      *   u.admin_request*/
-        RD_KAFKA_OP_DELETERECORDS,   /**< Admin: DeleteRecords:
-                                      *   u.admin_request*/
-        RD_KAFKA_OP_DELETEGROUPS,    /**< Admin: DeleteGroups: u.admin_request*/
+        RD_KAFKA_OP_PARTITION_JOIN,             /* * -> cgrp op:   add toppar to cgrp
+                                                * * -> broker op: add toppar to broker */
+        RD_KAFKA_OP_PARTITION_LEAVE,            /* * -> cgrp op:   remove toppar from cgrp
+                                                * * -> broker op: remove toppar from rkb*/
+        RD_KAFKA_OP_REBALANCE,                  /* broker thread -> app:
+                                                * group rebalance */
+        RD_KAFKA_OP_TERMINATE,                  /* For generic use */
+        RD_KAFKA_OP_COORD_QUERY,                /* Query for coordinator */
+        RD_KAFKA_OP_SUBSCRIBE,                  /* New subscription */
+        RD_KAFKA_OP_ASSIGN,                     /* New assignment */
+        RD_KAFKA_OP_GET_SUBSCRIPTION,           /* Get current subscription.
+				                * Reuses u.subscribe */
+        RD_KAFKA_OP_GET_ASSIGNMENT,             /* Get current assignment.
+				                * Reuses u.assign */
+        RD_KAFKA_OP_THROTTLE,                   /* Throttle info */
+        RD_KAFKA_OP_NAME,                       /* Request name */
+        RD_KAFKA_OP_CG_METADATA,                /**< Request consumer metadata */
+        RD_KAFKA_OP_OFFSET_RESET,               /* Offset reset */
+        RD_KAFKA_OP_METADATA,                   /* Metadata response */
+        RD_KAFKA_OP_LOG,                        /* Log */
+        RD_KAFKA_OP_WAKEUP,                     /* Wake-up signaling */
+        RD_KAFKA_OP_CREATETOPICS,               /**< Admin: CreateTopics: u.admin_request*/
+        RD_KAFKA_OP_DELETETOPICS,               /**< Admin: DeleteTopics: u.admin_request*/
+        RD_KAFKA_OP_CREATEPARTITIONS,           /**< Admin: CreatePartitions: u.admin_request*/
+        RD_KAFKA_OP_ALTERCONFIGS,               /**< Admin: AlterConfigs: u.admin_request*/
+        RD_KAFKA_OP_DESCRIBECONFIGS,            /**< Admin: DescribeConfigs: u.admin_request*/
+        RD_KAFKA_OP_DELETERECORDS,              /**< Admin: DeleteRecords: u.admin_request*/
+        RD_KAFKA_OP_DELETEGROUPS,               /**< Admin: DeleteGroups: u.admin_request*/
         RD_KAFKA_OP_DELETECONSUMERGROUPOFFSETS, /**< Admin:
                                                  *   DeleteConsumerGroupOffsets
                                                  *   u.admin_request */
         RD_KAFKA_OP_ADMIN_FANOUT,    /**< Admin: fanout request */
+        RD_KAFKA_OP_CREATEACLS,      /**< Admin: CreateAcls: u.admin_request*/
+        RD_KAFKA_OP_DESCRIBEACLS,    /**< Admin: DescribeAcls: u.admin_request*/
+        RD_KAFKA_OP_DELETEACLS,      /**< Admin: DeleteAcls: u.admin_request*/
         RD_KAFKA_OP_ADMIN_RESULT,    /**< Admin API .._result_t */
         RD_KAFKA_OP_PURGE,           /**< Purge queues */
         RD_KAFKA_OP_CONNECT,         /**< Connect (to broker) */

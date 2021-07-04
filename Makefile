@@ -57,6 +57,9 @@ docs:
 	doxygen Doxyfile
 	@echo "Documentation generated in staging-docs"
 
+format:
+	@find . | egrep '^.*\.(cpp|c|h)$$' | xargs clang-format -i
+
 clean-docs:
 	rm -rf staging-docs
 

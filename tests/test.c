@@ -5382,8 +5382,6 @@ test_wait_admin_result (rd_kafka_queue_t *q,
         return NULL;
 }
 
-
-
 /**
  * @brief Wait for up to \p tmout for an admin API result and return the
  *        distilled error code.
@@ -5404,69 +5402,80 @@ test_wait_topic_admin_result (rd_kafka_queue_t *q,
                               rd_kafka_event_t **retevent,
                               int tmout) {
         rd_kafka_event_t *rkev;
-        size_t i;
+        uint32_t i;
         const rd_kafka_topic_result_t **terr = NULL;
         size_t terr_cnt = 0;
         const rd_kafka_ConfigResource_t **cres = NULL;
         size_t cres_cnt = 0;
+        const rd_kafka_acl_result_t **aclres = NULL;
+        size_t aclres_cnt = 0;
         int errcnt = 0;
         rd_kafka_resp_err_t err;
         const rd_kafka_group_result_t **gres = NULL;
         size_t gres_cnt = 0;
         const rd_kafka_topic_partition_list_t *offsets = NULL;
 
-        rkev = test_wait_admin_result(q, evtype, tmout);
+        rkev = test_wait_admin_result (q, evtype, tmout);
 
-        if ((err = rd_kafka_event_error(rkev))) {
-                TEST_WARN("%s failed: %s\n",
-                          rd_kafka_event_name(rkev),
-                          rd_kafka_event_error_string(rkev));
-                rd_kafka_event_destroy(rkev);
+        if ((err = rd_kafka_event_error (rkev))) {
+                TEST_WARN ("%s failed: %s\n",
+                           rd_kafka_event_name (rkev),
+                           rd_kafka_event_error_string (rkev));
+                rd_kafka_event_destroy (rkev);
                 return err;
         }
 
         if (evtype == RD_KAFKA_EVENT_CREATETOPICS_RESULT) {
                 const rd_kafka_CreateTopics_result_t *res;
-                if (!(res = rd_kafka_event_CreateTopics_result(rkev)))
-                        TEST_FAIL("Expected a CreateTopics result, not %s",
-                                  rd_kafka_event_name(rkev));
+                if (!(res = rd_kafka_event_CreateTopics_result (rkev)))
+                        TEST_FAIL ("Expected a CreateTopics result, not %s",
+                                   rd_kafka_event_name (rkev));
 
-                terr = rd_kafka_CreateTopics_result_topics(res, &terr_cnt);
+                terr = rd_kafka_CreateTopics_result_topics (res, &terr_cnt);
 
         } else if (evtype == RD_KAFKA_EVENT_DELETETOPICS_RESULT) {
                 const rd_kafka_DeleteTopics_result_t *res;
-                if (!(res = rd_kafka_event_DeleteTopics_result(rkev)))
-                        TEST_FAIL("Expected a DeleteTopics result, not %s",
-                                  rd_kafka_event_name(rkev));
+                if (!(res = rd_kafka_event_DeleteTopics_result (rkev)))
+                        TEST_FAIL ("Expected a DeleteTopics result, not %s",
+                                   rd_kafka_event_name (rkev));
 
-                terr = rd_kafka_DeleteTopics_result_topics(res, &terr_cnt);
+                terr = rd_kafka_DeleteTopics_result_topics (res, &terr_cnt);
 
         } else if (evtype == RD_KAFKA_EVENT_CREATEPARTITIONS_RESULT) {
                 const rd_kafka_CreatePartitions_result_t *res;
-                if (!(res = rd_kafka_event_CreatePartitions_result(rkev)))
-                        TEST_FAIL("Expected a CreatePartitions result, not %s",
-                                  rd_kafka_event_name(rkev));
+                if (!(res = rd_kafka_event_CreatePartitions_result (rkev)))
+                        TEST_FAIL ("Expected a CreatePartitions result, not %s",
+                                   rd_kafka_event_name (rkev));
 
-                terr = rd_kafka_CreatePartitions_result_topics(res, &terr_cnt);
+                terr = rd_kafka_CreatePartitions_result_topics (res, &terr_cnt);
 
         } else if (evtype == RD_KAFKA_EVENT_DESCRIBECONFIGS_RESULT) {
                 const rd_kafka_DescribeConfigs_result_t *res;
 
-                if (!(res = rd_kafka_event_DescribeConfigs_result(rkev)))
-                        TEST_FAIL("Expected a DescribeConfigs result, not %s",
-                                  rd_kafka_event_name(rkev));
+                if (!(res = rd_kafka_event_DescribeConfigs_result (rkev)))
+                        TEST_FAIL ("Expected a DescribeConfigs result, not %s",
+                                   rd_kafka_event_name (rkev));
 
-                cres = rd_kafka_DescribeConfigs_result_resources(res,
-                                                                 &cres_cnt);
+                cres = rd_kafka_DescribeConfigs_result_resources (res,
+                                                                  &cres_cnt);
 
         } else if (evtype == RD_KAFKA_EVENT_ALTERCONFIGS_RESULT) {
                 const rd_kafka_AlterConfigs_result_t *res;
 
-                if (!(res = rd_kafka_event_AlterConfigs_result(rkev)))
-                        TEST_FAIL("Expected a AlterConfigs result, not %s",
-                                  rd_kafka_event_name(rkev));
+                if (!(res = rd_kafka_event_AlterConfigs_result (rkev)))
+                        TEST_FAIL ("Expected a AlterConfigs result, not %s",
+                                   rd_kafka_event_name (rkev));
 
-                cres = rd_kafka_AlterConfigs_result_resources(res, &cres_cnt);
+                cres = rd_kafka_AlterConfigs_result_resources (res, &cres_cnt);
+
+        } else if (evtype == RD_KAFKA_EVENT_CREATEACLS_RESULT) {
+                const rd_kafka_CreateAcls_result_t *res;
+
+                if (!(res = rd_kafka_event_CreateAcls_result (rkev)))
+                        TEST_FAIL ("Expected a CreateAcls result, not %s",
+                                   rd_kafka_event_name (rkev));
+
+                aclres = rd_kafka_CreateAcls_result_acls (res, &aclres_cnt);
 
         } else if (evtype == RD_KAFKA_EVENT_DELETEGROUPS_RESULT) {
                 const rd_kafka_DeleteGroups_result_t *res;
@@ -5496,30 +5505,42 @@ test_wait_topic_admin_result (rd_kafka_queue_t *q,
                         rkev, &gres_cnt);
 
         } else {
-                TEST_FAIL("Bad evtype: %d", evtype);
-                RD_NOTREACHED();
+                TEST_FAIL ("Bad evtype: %d", evtype);
+                RD_NOTREACHED ();
         }
 
         /* Check topic errors */
-        for (i = 0 ; i < terr_cnt ; i++) {
-                if (rd_kafka_topic_result_error(terr[i])) {
-                        TEST_WARN("..Topics result: %s: error: %s\n",
-                                  rd_kafka_topic_result_name(terr[i]),
-                                  rd_kafka_topic_result_error_string(terr[i]));
+        for (i = 0; i < terr_cnt; i++) {
+                if (rd_kafka_topic_result_error (terr[i])) {
+                        TEST_WARN ("..Topics result: %s: error: %s\n",
+                                   rd_kafka_topic_result_name (terr[i]),
+                                   rd_kafka_topic_result_error_string (terr[i]));
                         if (!(errcnt++))
-                                err = rd_kafka_topic_result_error(terr[i]);
+                                err = rd_kafka_topic_result_error (terr[i]);
                 }
         }
 
         /* Check resource errors */
-        for (i = 0 ; i < cres_cnt ; i++) {
-                if (rd_kafka_ConfigResource_error(cres[i])) {
-                        TEST_WARN("ConfigResource result: %d,%s: error: %s\n",
-                                  rd_kafka_ConfigResource_type(cres[i]),
-                                  rd_kafka_ConfigResource_name(cres[i]),
-                                  rd_kafka_ConfigResource_error_string(cres[i]));
+        for (i = 0; i < cres_cnt; i++) {
+                if (rd_kafka_ConfigResource_error (cres[i])) {
+                        TEST_WARN ("ConfigResource result: %d,%s: error: %s\n",
+                                   rd_kafka_ConfigResource_type (cres[i]),
+                                   rd_kafka_ConfigResource_name (cres[i]),
+                                   rd_kafka_ConfigResource_error_string (cres[i]));
                         if (!(errcnt++))
-                                err = rd_kafka_ConfigResource_error(cres[i]);
+                                err = rd_kafka_ConfigResource_error (cres[i]);
+                }
+        }
+
+        /* Check acl errors */
+        for (i = 0; i < aclres_cnt; i++) {
+                if (rd_kafka_acl_result_error_code (aclres[i])) {
+                        TEST_WARN ("AclBinding result: %d, error_code: %d: error: %s\n",
+                                   i,
+                                   rd_kafka_acl_result_error_code (aclres[i]),
+                                   rd_kafka_acl_result_error_message (aclres[i]));
+                        if (!(errcnt++))
+                                err = rd_kafka_acl_result_error_code (aclres[i]);
                 }
         }
 
@@ -5571,12 +5592,10 @@ test_wait_topic_admin_result (rd_kafka_queue_t *q,
         if (!err && retevent)
                 *retevent = rkev;
         else
-                rd_kafka_event_destroy(rkev);
+                rd_kafka_event_destroy (rkev);
 
         return err;
 }
-
-
 
 /**
  * @brief Topic Admin API helpers
@@ -6082,7 +6101,57 @@ test_AlterConfigs_simple (rd_kafka_t *rk,
         return err;
 }
 
+/**
+ * @brief Topic Admin API helpers
+ *
+ * @param useq Makes the call async and posts the response in this queue.
+ *             If NULL this call will be synchronous and return the error
+ *             result.
+ *             
+ * @remark Fails the current test on failure.
+ */
 
+rd_kafka_resp_err_t
+test_CreateAcls_simple (rd_kafka_t *rk,
+                        rd_kafka_queue_t *useq,
+                        rd_kafka_AclBinding_t **acls,
+                        size_t acl_cnt,
+                        void *opaque) {
+        rd_kafka_AdminOptions_t *options;
+        rd_kafka_queue_t *q;
+        rd_kafka_resp_err_t err;
+        const int tmout = 30 * 1000;
+
+        options = rd_kafka_AdminOptions_new (rk, RD_KAFKA_ADMIN_OP_CREATEACLS);
+        rd_kafka_AdminOptions_set_opaque (options, opaque);
+
+        if (!useq) {
+                q = rd_kafka_queue_new (rk);
+        } else {
+                q = useq;
+        }
+
+        TEST_SAY ("Creating %" PRIusz " acls\n", acl_cnt);
+
+        rd_kafka_CreateAcls (rk, acls, acl_cnt, options, q);
+
+        rd_kafka_AdminOptions_destroy (options);
+
+        if (useq)
+                return RD_KAFKA_RESP_ERR_NO_ERROR;
+
+        err = test_wait_topic_admin_result (q,
+                                            RD_KAFKA_EVENT_CREATEACLS_RESULT,
+                                            NULL, tmout + 5000);
+
+        rd_kafka_queue_destroy (q);
+
+        if (err)
+                TEST_FAIL ("Failed to create %d acl(s): %s",
+                           (int)acl_cnt, rd_kafka_err2str (err));
+
+        return err;
+}
 
 static void test_free_string_array (char **strs, size_t cnt) {
         size_t i;

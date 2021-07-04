@@ -1,0 +1,11 @@
+Language: Cpp
+BasedOnStyle: Google
+IndentWidth: 8
+ContinuationIndentWidth: 8
+UseTab: Never
+BreakBeforeBraces: Attach
+AllowShortIfStatementsOnASingleLine: false
+SpaceBeforeParens: Always
+SpaceInEmptyParentheses: false
+ColumnLimit: 0
+SortIncludes: false

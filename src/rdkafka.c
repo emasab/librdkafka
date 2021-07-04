@@ -3855,6 +3855,9 @@ rd_kafka_poll_cb (rd_kafka_t *rk, rd_kafka_q_t *rkq, rd_kafka_op_t *rko,
         case RD_KAFKA_OP_DELETERECORDS:
         case RD_KAFKA_OP_DELETEGROUPS:
         case RD_KAFKA_OP_ADMIN_FANOUT:
+        case RD_KAFKA_OP_CREATEACLS:
+        case RD_KAFKA_OP_DESCRIBEACLS:
+        case RD_KAFKA_OP_DELETEACLS:
                 /* Calls op_destroy() from worker callback,
                  * when the time comes. */
                 res = rd_kafka_op_call(rk, rkq, rko);
