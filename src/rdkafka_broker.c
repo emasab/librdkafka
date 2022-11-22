@@ -1622,6 +1622,59 @@ rd_kafka_broker_t *rd_kafka_broker_get_async(rd_kafka_t *rk,
 
 
 /**
+ * @brief TODO1: write
+ *
+ * @param rk
+ * @param eonce
+ * @return rd_list_t*
+ */
+rd_list_t *rd_kafka_brokers_get_nodeids_async(rd_kafka_t *rk,
+                                              rd_kafka_enq_once_t *eonce) {
+        rd_list_t *nodeids = NULL;
+        int version, i, broker_cnt;
+        do {
+                rd_kafka_broker_t *rkb;
+                version = rd_kafka_brokers_get_state_version(rk);
+
+                rd_kafka_rdlock(rk);
+                broker_cnt = rd_atomic32_get(&rk->rk_broker_cnt);
+                if (nodeids) {
+                        if (broker_cnt > rd_list_cnt(nodeids)) {
+                                rd_list_destroy(nodeids);
+                                /* Will be recreated just after */
+                                nodeids = NULL;
+                        } else {
+                                rd_list_set_cnt(nodeids, 0);
+                        }
+                }
+                if (!nodeids) {
+                        nodeids = rd_list_new(0, NULL);
+                        rd_list_init_int32(nodeids, broker_cnt);
+                }
+                i = 0;
+                TAILQ_FOREACH(rkb, &rk->rk_brokers, rkb_link) {
+                        rd_kafka_broker_lock(rkb);
+                        if (rkb->rkb_nodeid != -1 &&
+                            !RD_KAFKA_BROKER_IS_LOGICAL(rkb)) {
+                                rd_list_set_int32(nodeids, i++,
+                                                  rkb->rkb_nodeid);
+                        }
+                        rd_kafka_broker_unlock(rkb);
+                }
+                rd_kafka_rdunlock(rk);
+
+                if (!rd_list_empty(nodeids))
+                        return nodeids;
+        } while (!rd_kafka_brokers_wait_state_change_async(rk, version, eonce));
+
+        if (nodeids) {
+                rd_list_destroy(nodeids);
+        }
+        return NULL; /* eonce added to wait list */
+}
+
+
+/**
  * @returns the current controller using cached metadata information,
  *          and only if the broker's state == \p state.
  *          The reference count is increased for the returned broker.
